@@ -5,10 +5,13 @@ import { RunRoundShuffle } from "./systems/round/round-shuffler.system";
 import { InformMoveSwitch } from "./systems/moves/player-shift.system";
 import { PlayerType } from "./components/player.type";
 import { prepareTextures } from "./systems/layout/textures";
+import { setupDialog } from "./dialogs";
 
-const MIN_WIDTH = 555;
+const MIN_WIDTH = 500;
 
 export async function runApp() {
+  setupDialog(".icon-right", "#my-dialog");
+
   const playerCount = await askPlayerCount();
   const app = new Application();
   await app.init({ backgroundAlpha: 0, resizeTo: window, antialias: true });
@@ -20,21 +23,19 @@ export async function runApp() {
   RunRoundShuffle(world);
   setupClickHandling(app, world);
   InformMoveSwitch();
-  if (app.canvas.width < 500) alert(app.canvas.width);
 }
 
 function askPlayerCount(): Promise<number> {
   const dialog = document.querySelector<HTMLDialogElement>("#start-dialog")!;
   const form = document.querySelector<HTMLFormElement>("#start-game-form")!;
 
-  dialog.showModal();
   return new Promise((resolve) => {
     form.addEventListener(
       "submit",
       (event) => {
         event.preventDefault();
         const count = Number((event.submitter! as any).value);
-        dialog.close();
+        dialog.hidden = true;
         resolve(count);
       },
       { once: true },

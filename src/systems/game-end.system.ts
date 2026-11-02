@@ -21,8 +21,8 @@ export function showGameOver(world: GameWorld, container: Container) {
   message.x = world.windowSize.width / 2 - message.width / 2;
   message.y = t + 20;
 
-  const reloadStyle: TextStyleOptions = { fontSize: 16, fill: 0x777777, fontFamily: "Consolas" };
-  const reload = new Text({ text: "Click to reload", style: reloadStyle });
+  const reloadStyle: TextStyleOptions = { fontSize: 16, fill: 0x444444, fontFamily: "Consolas" };
+  const reload = new Text({ text: "Click to restart", style: reloadStyle });
   reload.x = world.windowSize.width / 2 - reload.width / 2;
   reload.y = t + 55;
 
