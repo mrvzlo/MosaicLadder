@@ -43856,10 +43856,10 @@ ${e2}`);
   // src/consts/sizes.ts
   var TILE_SIZE = 32;
   var OUTER_GAP = 16;
-  var INNER_GAP = 4;
-  var CIRCLE_R = (TILE_SIZE + INNER_GAP) * Math.sqrt(2);
-  var PLAYER_BOARD_TOP = CIRCLE_R * 4 + TILE_SIZE * 4 + OUTER_GAP * 6;
-  var PLAYER_BOARD_LEFT = OUTER_GAP + TILE_SIZE * 5 + INNER_GAP * 4;
+  var INNER_GAP = isMobile3() ? 2 : 8;
+  var CIRCLE_R = TILE_SIZE * Math.sqrt(2) - 4;
+  var PLAYER_BOARD_TOP = CIRCLE_R * 4 + TILE_SIZE * 4 + OUTER_GAP * 4 + (isMobile3() ? 0 : OUTER_GAP * 1);
+  var PLAYER_BOARD_LEFT = INNER_GAP * 3 + TILE_SIZE * 5 + INNER_GAP * 4;
   var PLAYER_BOARD_SIZE = TILE_SIZE * 5 + INNER_GAP * 6;
   var WHOLE_BOARD_W = TILE_SIZE * 10 + INNER_GAP * 11;
 
@@ -43909,17 +43909,17 @@ ${e2}`);
     });
   }
   function getTileX(index) {
-    if (index == 0 || index == 2) return -INNER_GAP / 2 - TILE_SIZE;
-    return INNER_GAP / 2;
+    if (index == 0 || index == 2) return -TILE_SIZE;
+    return 0;
   }
   function getTileY(index) {
-    if (index == 0 || index == 1) return -INNER_GAP / 2 - TILE_SIZE;
-    return INNER_GAP / 2;
+    if (index == 0 || index == 1) return -TILE_SIZE;
+    return 0;
   }
   function getFactoryPos(world, i2) {
     const half = world.center.factories.length / 2;
     const shiftX = i2 + 0.5 - half;
-    const y2 = TILE_SIZE * 3 + OUTER_GAP * 5 + CIRCLE_R + i2 % 2 * CIRCLE_R * 2;
+    const y2 = TILE_SIZE * 3 + OUTER_GAP * 4 + CIRCLE_R + i2 % 2 * CIRCLE_R * 2;
     const x2 = world.windowSize.width / 2 + shiftX * (CIRCLE_R + INNER_GAP);
     return { x: x2, y: y2 };
   }
@@ -43927,9 +43927,6 @@ ${e2}`);
   // src/systems/layout/player-board-layout.system.ts
   var lines = 5;
   var HITBOX_GAP = INNER_GAP * 0.8;
-  function getPlayerBoardScale(index) {
-    return index === 0 ? 1 : 0.4;
-  }
   function SetPlayerLineHitboxes(world) {
     world.players.forEach((p2, pi) => {
       const px = getPlayerBoardX(world, pi);
@@ -43940,7 +43937,7 @@ ${e2}`);
         for (let j2 = lines - i2 - 1; j2 < lines; j2++) {
           const key = `line:${pi}:${i2}:${j2}`;
           updateHitbox(world.hitboxes, key, {
-            color: 6,
+            color: 0,
             x: px + (j2 * (TILE_SIZE + INNER_GAP) - HITBOX_GAP / 2) * scale,
             y: py + (i2 * (TILE_SIZE + INNER_GAP) - HITBOX_GAP / 2) * scale,
             w: (TILE_SIZE + HITBOX_GAP) * scale,
@@ -43971,12 +43968,19 @@ ${e2}`);
   }
   function getPlayerBoardY(world, index) {
     if (index == 0) return PLAYER_BOARD_TOP;
-    return PLAYER_BOARD_TOP + (TILE_SIZE * 6 + INNER_GAP * 6 + CIRCLE_R);
+    const h2 = TILE_SIZE * 6 + INNER_GAP * 6 + CIRCLE_R;
+    let bottom = PLAYER_BOARD_TOP + h2;
+    return bottom;
   }
   function getPlayerBoardX(world, index) {
     if (index == 0) return world.windowSize.width / 2 - WHOLE_BOARD_W / 2;
     const gap = 20;
-    return world.windowSize.width / 2 + (WHOLE_BOARD_W * getPlayerBoardScale(index) + gap) * (index - world.players.length / 2 - 0.5) + gap / 2;
+    let shift = index - world.players.length / 2 - 0.5;
+    let w2 = WHOLE_BOARD_W * getPlayerBoardScale(index) + gap;
+    return world.windowSize.width / 2 + w2 * shift + gap / 2;
+  }
+  function getPlayerBoardScale(index) {
+    return index === 0 ? 1 : isMobile3() ? 0.33 : 0.75;
   }
 
   // src/systems/layout/textures.ts
@@ -44011,7 +44015,7 @@ ${e2}`);
     const size = TILE_SIZE * getPlayerBoardScale(hitbox.playerIndex ?? 0);
     if (hitbox.graphicColor !== color || hitbox.graphicSelected !== selected) {
       graphic.clear().rect(0, 0, size, size).fill(tileTextures[color]);
-      if (selected) graphic.stroke({ color: 16777215, width: 2 });
+      if (selected) graphic.stroke({ color: 16777215, width: 1 });
       hitbox.graphicColor = color;
       hitbox.graphicSelected = selected;
     }
@@ -44113,15 +44117,13 @@ ${e2}`);
       ind++;
     }
   }
-  var scoreW = 75;
-  var scoreH = 50;
   function drawScore(p2, px, py, container, scale) {
-    const width = scoreW * scale;
-    const height = scoreH * scale;
+    const width = 64 * scale * (scale < 1 ? 1.33 : 1);
+    const height = 48 * scale * (scale < 1 ? 1.33 : 1);
     const scoreBackground = new Graphics();
     scoreBackground.rect(px, py, width, height).fill(MAIN_BG).stroke(MAIN_BORDER);
     container.addChild(scoreBackground);
-    const style = { fontSize: 32 * scale, fill: 2236962, fontFamily: "Consolas", fontWeight: "bold" };
+    const style = { fontSize: 32 * Math.sqrt(scale), fill: 2236962, fontFamily: "Consolas", fontWeight: "bold" };
     const text = p2.score + p2.bonusScore;
     const score = new Text({ text, style });
     score.x = px - score.width / 2 + width / 2;
@@ -44135,6 +44137,9 @@ ${e2}`);
     SetPlayerLineHitboxes(world);
     RenderCenterBoard(container, world);
     RenderPlayerBoard(container, world);
+  }
+  function isMobile3() {
+    return window.innerWidth < window.innerHeight;
   }
 
   // src/systems/moves/tile-pick.system.ts
@@ -44410,7 +44415,6 @@ ${e2}`);
   }
 
   // src/systems/layout/tile-animation.system.ts
-  var PLAYER_BOARD_LEFT2 = OUTER_GAP + TILE_SIZE * 5 + INNER_GAP * 4;
   var ANIMATION_DURATION = 420;
   var TILE_STAGGER = 24;
   var animationCount = 0;
@@ -44473,7 +44477,7 @@ ${e2}`);
           movements.push({
             hitbox: source2,
             graphic: source2.graphic,
-            toX: boardX + (PLAYER_BOARD_LEFT2 + column * (TILE_SIZE + INNER_GAP)) * scale - sourceX - 2,
+            toX: boardX - sourceX + (PLAYER_BOARD_LEFT + column * (TILE_SIZE + INNER_GAP)) * scale - INNER_GAP / 2,
             toY: 0,
             toScale: scale
           });
@@ -44538,8 +44542,8 @@ ${e2}`);
     const message = new Text({ text: "You got " + opts[place] + " place with " + total + " points", style: messageStyle });
     message.x = world.windowSize.width / 2 - message.width / 2;
     message.y = t2 + 20;
-    const reloadStyle = { fontSize: 16, fill: 7829367, fontFamily: "Consolas" };
-    const reload = new Text({ text: "Click to reload", style: reloadStyle });
+    const reloadStyle = { fontSize: 16, fill: 4473924, fontFamily: "Consolas" };
+    const reload = new Text({ text: "Click to restart", style: reloadStyle });
     reload.x = world.windowSize.width / 2 - reload.width / 2;
     reload.y = t2 + 55;
     container.addChild(g2);
@@ -44791,8 +44795,9 @@ ${e2}`);
     return tiles;
   }
   function baseArrangement() {
+    const seed = Math.floor(Math.random() * 5);
     const arrangement = [];
-    for (let i2 = 0; i2 < 50; i2++) arrangement.push((i2 - Math.floor(i2 / 5)) % 5 + 1);
+    for (let i2 = 0; i2 < 50; i2++) arrangement.push((seed + i2 - Math.floor(i2 / 5)) % 5 + 1);
     return arrangement;
   }
   function assignAI(world) {
@@ -44803,9 +44808,17 @@ ${e2}`);
     });
   }
 
+  // src/dialogs.ts
+  function setupDialog(buttonId, blockId) {
+    const button = document.querySelector(buttonId);
+    const dialog = document.querySelector(blockId);
+    button.onclick = () => dialog.showModal();
+  }
+
   // src/main.ts
-  var MIN_WIDTH = 555;
+  var MIN_WIDTH = 440;
   async function runApp() {
+    setupDialog(".icon-right", "#my-dialog");
     const playerCount = await askPlayerCount();
     const app = new Application();
     await app.init({ backgroundAlpha: 0, resizeTo: window, antialias: true });
@@ -44817,19 +44830,17 @@ ${e2}`);
     RunRoundShuffle(world);
     setupClickHandling(app, world);
     InformMoveSwitch();
-    if (app.canvas.width < 500) alert(app.canvas.width);
   }
   function askPlayerCount() {
     const dialog = document.querySelector("#start-dialog");
     const form = document.querySelector("#start-game-form");
-    dialog.showModal();
     return new Promise((resolve) => {
       form.addEventListener(
         "submit",
         (event) => {
           event.preventDefault();
           const count2 = Number(event.submitter.value);
-          dialog.close();
+          dialog.hidden = true;
           resolve(count2);
         },
         { once: true }
