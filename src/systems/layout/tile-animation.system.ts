@@ -2,11 +2,10 @@ import { Graphics } from "pixi.js";
 import GameWorld from "../../components/game-world";
 import Hitbox from "../../components/hitbox";
 import Pickup from "../../components/pickup";
-import { INNER_GAP, OUTER_GAP, TILE_SIZE } from "../../consts/sizes";
+import { INNER_GAP, PLAYER_BOARD_LEFT, TILE_SIZE } from "../../consts/sizes";
 import { findPlacedIndex } from "../round/round-end.system";
 import { getPlayerBoardScale, getPlayerBoardX, getPlayerBoardY } from "./player-board-layout.system";
 
-const PLAYER_BOARD_LEFT = OUTER_GAP + TILE_SIZE * 5 + INNER_GAP * 4;
 const ANIMATION_DURATION = 420;
 const TILE_STAGGER = 24;
 let animationCount = 0;
@@ -95,7 +94,7 @@ export async function AnimateRoundEndTiles(world: GameWorld): Promise<void> {
         movements.push({
           hitbox: source,
           graphic: source.graphic,
-          toX: boardX + (PLAYER_BOARD_LEFT + column * (TILE_SIZE + INNER_GAP)) * scale - sourceX - 2,
+          toX: boardX - sourceX + (PLAYER_BOARD_LEFT + column * (TILE_SIZE + INNER_GAP)) * scale - INNER_GAP / 2,
           toY: 0,
           toScale: scale,
         });

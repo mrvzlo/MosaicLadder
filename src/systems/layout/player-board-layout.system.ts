@@ -1,13 +1,10 @@
 import GameWorld from "../../components/game-world";
 import { updateHitbox } from "../../components/hitbox";
 import { CIRCLE_R, INNER_GAP, PLAYER_BOARD_TOP, TILE_SIZE, WHOLE_BOARD_W } from "../../consts/sizes";
+import { isMobile } from "./draw-board.system";
 
 const lines = 5;
 const HITBOX_GAP = INNER_GAP * 0.8;
-
-export function getPlayerBoardScale(index: number) {
-  return index === 0 ? 1 : 0.4;
-}
 
 export function SetPlayerLineHitboxes(world: GameWorld) {
   world.players.forEach((p, pi) => {
@@ -19,7 +16,7 @@ export function SetPlayerLineHitboxes(world: GameWorld) {
       for (let j = lines - i - 1; j < lines; j++) {
         const key = `line:${pi}:${i}:${j}`;
         updateHitbox(world.hitboxes, key, {
-          color: 6,
+          color: 0,
           x: px + (j * (TILE_SIZE + INNER_GAP) - HITBOX_GAP / 2) * scale,
           y: py + (i * (TILE_SIZE + INNER_GAP) - HITBOX_GAP / 2) * scale,
           w: (TILE_SIZE + HITBOX_GAP) * scale,
@@ -52,13 +49,19 @@ export function SetPlayerLineHitboxes(world: GameWorld) {
 
 export function getPlayerBoardY(world: GameWorld, index: number) {
   if (index == 0) return PLAYER_BOARD_TOP;
-  return PLAYER_BOARD_TOP + (TILE_SIZE * 6 + INNER_GAP * 6 + CIRCLE_R);
+  const h = TILE_SIZE * 6 + INNER_GAP * 6 + CIRCLE_R;
+  let bottom = PLAYER_BOARD_TOP + h;
+  return bottom;
 }
 
 export function getPlayerBoardX(world: GameWorld, index: number) {
   if (index == 0) return world.windowSize.width / 2 - WHOLE_BOARD_W / 2;
   const gap = 20;
-  return (
-    world.windowSize.width / 2 + (WHOLE_BOARD_W * getPlayerBoardScale(index) + gap) * (index - world.players.length / 2 - 0.5) + gap / 2
-  );
+  let shift = index - world.players.length / 2 - 0.5;
+  let w = WHOLE_BOARD_W * getPlayerBoardScale(index) + gap;
+  return world.windowSize.width / 2 + w * shift + gap / 2;
+}
+
+export function getPlayerBoardScale(index: number) {
+  return index === 0 ? 1 : isMobile() ? 0.33 : 0.75;
 }

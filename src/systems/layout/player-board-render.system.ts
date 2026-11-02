@@ -75,17 +75,14 @@ function drawPenalties(player: PlayerBoard, px: number, py: number, container: C
   }
 }
 
-const scoreW = 75;
-const scoreH = 50;
-
 function drawScore(p: PlayerBoard, px: number, py: number, container: Container, scale: number) {
-  const width = scoreW * scale;
-  const height = scoreH * scale;
+  const width = 64 * scale * (scale < 1 ? 1.33 : 1);
+  const height = 48 * scale * (scale < 1 ? 1.33 : 1);
   const scoreBackground = new Graphics();
   scoreBackground.rect(px, py, width, height).fill(MAIN_BG).stroke(MAIN_BORDER);
   container.addChild(scoreBackground);
 
-  const style: TextStyleOptions = { fontSize: 32 * scale, fill: 0x222222, fontFamily: "Consolas", fontWeight: "bold" };
+  const style: TextStyleOptions = { fontSize: 32 * Math.sqrt(scale), fill: 0x222222, fontFamily: "Consolas", fontWeight: "bold" };
   const text = p.score + p.bonusScore;
   const score = new Text({ text, style });
   score.x = px - score.width / 2 + width / 2;

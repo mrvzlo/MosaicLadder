@@ -88,6 +88,7 @@ a {
 
 .icon-top {
   z-index: 10;
+  opacity: 60%;
   position: fixed;
   top: 0;
   cursor: pointer;

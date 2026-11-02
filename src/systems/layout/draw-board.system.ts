@@ -11,3 +11,7 @@ export function DrawBoard(container: Container, world: GameWorld) {
   RenderCenterBoard(container, world);
   RenderPlayerBoard(container, world);
 }
+
+export function isMobile() {
+  return window.innerWidth < window.innerHeight;
+}

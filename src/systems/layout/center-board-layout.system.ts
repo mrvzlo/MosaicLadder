@@ -39,20 +39,20 @@ function setTileHitbox(world: GameWorld, key: string, color: number, x: number, 
 }
 
 function getTileX(index: number) {
-  if (index == 0 || index == 2) return -INNER_GAP / 2 - TILE_SIZE;
-  return INNER_GAP / 2;
+  if (index == 0 || index == 2) return -TILE_SIZE;
+  return 0;
 }
 
 function getTileY(index: number) {
-  if (index == 0 || index == 1) return -INNER_GAP / 2 - TILE_SIZE;
-  return INNER_GAP / 2;
+  if (index == 0 || index == 1) return -TILE_SIZE;
+  return 0;
 }
 
 export function getFactoryPos(world: GameWorld, i: number) {
   const half = world.center.factories.length / 2;
   const shiftX = i + 0.5 - half;
 
-  const y = TILE_SIZE * 3 + OUTER_GAP * 5 + CIRCLE_R + (i % 2) * CIRCLE_R * 2;
+  const y = TILE_SIZE * 3 + OUTER_GAP * 4 + CIRCLE_R + (i % 2) * CIRCLE_R * 2;
   const x = world.windowSize.width / 2 + shiftX * (CIRCLE_R + INNER_GAP);
   return { x, y };
 }

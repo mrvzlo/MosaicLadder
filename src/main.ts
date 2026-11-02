@@ -7,7 +7,7 @@ import { PlayerType } from "./components/player.type";
 import { prepareTextures } from "./systems/layout/textures";
 import { setupDialog } from "./dialogs";
 
-const MIN_WIDTH = 500;
+const MIN_WIDTH = 440;
 
 export async function runApp() {
   setupDialog(".icon-right", "#my-dialog");
